@@ -1,0 +1,79 @@
+@startuml
+
+' Налаштування, щоб стрілки були рівними
+skinparam linetype ortho
+
+' Можна приховати зайві деталі класів
+hide circle
+hide methods
+hide stereotypes
+
+' ======================
+' ФАКТ-ТАБЛИЦЯ (ДАТАСЕТ)
+' ======================
+entity "DATASET" as dataset {
+  * sales_date   : DATE
+  * sku_id       : VARCHAR(50)
+  * dc_id        : INT
+  * sales_count  : INT
+  --
+  weight         : DECIMAL(10,2)
+  promo          : BOOLEAN
+}
+
+' ======================
+' ДОВІДНИК ТОВАРІВ
+' ======================
+entity "dim_sku" as dim_sku {
+  * sku_id       : VARCHAR(50)
+  --
+  sku_name       : VARCHAR(255)
+  category       : VARCHAR(100)
+  brand          : VARCHAR(100)
+  weight         : DECIMAL(10,2)
+  base_price     : DECIMAL(10,2)
+}
+
+' ======================
+' ДОВІДНИК СКЛАДІВ / МАГАЗИНІВ
+' ======================
+entity "dim_dc" as dim_dc {
+  * dc_id        : INT
+  --
+  dc_name        : VARCHAR(100)
+  city           : VARCHAR(100)
+  region_type    : VARCHAR(50)
+  capacity_tons  : INT
+}
+
+' ======================
+' ПРОМО-КАМПАНІЇ
+' ======================
+entity "dim_promo" as dim_promo {
+  * promo_id     : INT
+  --
+  sku_id         : VARCHAR(50)
+  dc_id          : INT
+  start_date     : DATE
+  end_date       : DATE
+  promo_type     : VARCHAR(50)
+}
+
+' ======================
+' ЗВ’ЯЗКИ (Information Engineering notation)
+' }o--||  = "zero or many" до "exactly one"
+' ======================
+
+' Багато рядків у DATASET на один товар у dim_sku
+dataset }o--|| dim_sku : "sku_id"
+
+' Багато рядків у DATASET на один склад у dim_dc
+dataset }o--|| dim_dc  : "dc_id"
+
+' Багато промо-записів на один товар
+dim_promo }o--|| dim_sku : "sku_id"
+
+' Багато промо-записів на один склад
+dim_promo }o--|| dim_dc  : "dc_id"
+
+@enduml
